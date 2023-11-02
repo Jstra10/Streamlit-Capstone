@@ -13,6 +13,16 @@ sql_url = os.getenv('SQL_URL')
 sql_query = 'SELECT * FROM weather_data'
 data = pd.read_sql_query(sql_query, sql_url)
 
+data['speed_of_wind_feet_per_sec'] = data['speed_of_wind'] * 3.28084
+data.drop('speed_of_wind', axis=1, inplace=True)
+
+data['temp_min'] = (data['temp_min'] - 273.15) * 9/5 + 32
+data['temp_max'] = (data['temp_max'] - 273.15) * 9/5 + 32
+data['temperature'] = (data['temperature'] - 273.15) * 9/5 + 32
+
+data['air_pressure'] = data['air_pressure'] * 0.02953
+
+
 # Check if data is not empty
 if not data.empty:
     st.subheader('Visualization Analysis:')
@@ -25,7 +35,7 @@ if not data.empty:
     # Display various charts in the two columns
     with col1:
         st.subheader('Weather Conditions Over Time:')
-        fig = px.line(data[data['city'] == city_filter], x='current_status', y='date', title='Temperature Over Time', color='hour')
+        fig = px.line(data[data['city'] == city_filter], y='temperature', x='date', title='Temperature Over Time', color='day_category')
         
         # Add neon green border to the chart
         fig.update_xaxes(showline=True, linewidth=2, linecolor='#39FF14')

@@ -20,6 +20,15 @@ sql_url = os.getenv('SQL_URL')
 sql_query = 'SELECT * FROM weather_data'
 data = pd.read_sql_query(sql_query, sql_url)
 
+data['speed_of_wind_feet_per_sec'] = data['speed_of_wind'] * 3.28084
+data.drop('speed_of_wind', axis=1, inplace=True)
+
+data['temp_min'] = (data['temp_min'] - 273.15) * 9/5 + 32
+data['temp_max'] = (data['temp_max'] - 273.15) * 9/5 + 32
+data['temperature'] = (data['temperature'] - 273.15) * 9/5 + 32
+
+data['air_pressure'] = data['air_pressure'] * 0.02953
+
 # Check if data is not empty
 if not data.empty:
     
@@ -40,7 +49,7 @@ if not data.empty:
         st.plotly_chart(fig)
 
         st.subheader('Weather Conditions Over Time:')
-        fig = px.line(data, x='current_status', y='date', title='Temperature Over Time', color='hour')
+        fig = px.line(data, y='current_status', x='date', title='Temperature Over Time', color='date')
 
         # Add neon green border to the chart
         fig.update_xaxes(showline=True, linewidth=2, linecolor='#39FF14')
@@ -48,8 +57,8 @@ if not data.empty:
         
         st.plotly_chart(fig)
 
-        st.subheader('Air Pressure:')
-        fig = px.scatter(data, x='date', y='air_pressure', title='Air Pressure Over Time', color='city')
+        st.subheader('Air Pressure Scatter Plot:')
+        fig = px.scatter(data, x='date', y='air_pressure', title='Air Pressure Over Time', color='speed_of_wind_feet_per_sec')
 
         # Add neon green border to the chart
         fig.update_xaxes(showline=True, linewidth=2, linecolor='#39FF14')
@@ -68,15 +77,11 @@ if not data.empty:
 
         with col1:
             st.subheader('Percipitation by Date')
-            # Create your new chart using Plotly Express, Seaborn, or Matplotlib
-            # For example, let's add a simple scatter plot
-            fig = px.scatter(data, x='date', y='pop', title='Your New Chart Title', color='city')
+            fig = px.bar(data, x='date', y='pop', title='Percipitation')
 
-            # Add any custom styling you need
             fig.update_xaxes(showline=True, linewidth=2, linecolor='#39FF14')
             fig.update_yaxes(showline=True, linewidth=2, linecolor='#39FF14')
 
-            # Display your chart using st.plotly_chart(fig) or st.pyplot(fig)
             st.plotly_chart(fig)
             
 
@@ -136,7 +141,7 @@ if not data.empty:
 
     st.subheader('Avg Weather by Date (numeric columns are averaged)')
 
-    # Group the data by 'date' and 'day_category' and calculate the mean for specific columns
+    # Group the data by 'date' and 'day_category' and calculate the mean for columns
     columns_to_mean = ['temperature', 'air_pressure', 'speed_of_wind_feet_per_sec','pop']
     avg_weather_data = data.groupby(['date', 'day_category'])[columns_to_mean].mean().reset_index()
 

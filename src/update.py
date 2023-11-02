@@ -11,7 +11,7 @@ import seaborn as sns
 import numpy as np
 import plotly.express as px
 import os
-
+from pathlib import Path
 
 def weather_data(lat, lon, key):
     """Obtains weather data from the OpenWeatherMap API for the next five days and stores it in a DataFrame."""
@@ -52,9 +52,12 @@ def weather_data(lat, lon, key):
         print("Failed to retrieve weather data.")
         return None
     
-
+folder_dir = os.path.join(Path(__file__).parents[0])
 def retrieve_weather_data_for_counties(counties, key):
-    counties = pd.read_csv(r'C:\Users\jjs61\OneDrive\Desktop\Streamlit\src\data\us-county-boundaries.csv')
+    
+    
+    counties = pd.read_csv(f'{folder_dir}\\data\\us-county-boundaries.csv', low_memory=False)
+    #counties = pd.read_csv(r'C:\Users\jjs61\OneDrive\Desktop\Streamlit\src\data\us-county-boundaries.csv')
     all_weather_data = []  # Initialize an empty list to store the weather data
 
     for _, row in counties.iterrows():
@@ -68,8 +71,8 @@ def retrieve_weather_data_for_counties(counties, key):
     
     return all_weather_data
 
-
-counties = pd.read_csv(r'C:\Users\jjs61\OneDrive\Desktop\Streamlit\src\data\us-county-boundaries.csv')
+counties = pd.read_csv(f'{folder_dir}\\data\\us-county-boundaries.csv', low_memory=False)
+#counties = pd.read_csv(r'C:\Users\jjs61\OneDrive\Desktop\Streamlit\src\data\us-county-boundaries.csv')
 key = 'bf5bec80bffcd85b43121653e17a6c4a'
 # Call function to retrieve weather data for locations in the counties DataFrame
 all_weather_data = retrieve_weather_data_for_counties(counties, key)
@@ -80,10 +83,13 @@ all_weather_data = retrieve_weather_data_for_counties(counties, key)
 columns = ['city', 'timestamp', 'hour', 'temp_min', 'temp_max', 'temperature', 'humidity', 'air_pressure', 'day_category', 'current_status', 'speed_of_wind', 'visibility_in_meters', 'pop', 'sys', 'latitude', 'longitude']
 
 df_weather = pd.DataFrame(all_weather_data, columns=columns)
+df_weather['timestamp'] = pd.to_datetime(df_weather['timestamp'], unit='s')
+df_weather['date'] = df_weather['timestamp'].dt.date  # Extract the date part
 
 
 # Send to elephant SQL
 load_dotenv()
 url=getenv('SQL_URL')
 df_weather.to_sql('weather_data', con = url, if_exists='replace', index=False)
+
 
