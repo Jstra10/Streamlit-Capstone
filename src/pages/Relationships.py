@@ -44,18 +44,6 @@ if not data.empty:
 
     
 
-    # Define variable explanations
-variable_explanations = {
-    'pop': 'Percent of Percipitation',
-    'temperature': 'Temperature in Fahrenheit',
-    'humidity': 'Humidity',
-    'air_pressure': 'Air Pressure inHg (inches of mercury) Avg air pressure for Ohio is 30.34',
-    'speed_of_wind_feet_per_sec': 'Wind Speed (feet/s)'
-}
-
-# Display variable explanations
-for variable, explanation in variable_explanations.items():
-    st.write(f"{variable}: {explanation}")
 
     st.subheader('Correlation Matrix')
 
@@ -74,3 +62,16 @@ for variable, explanation in variable_explanations.items():
     
     st.pyplot(fig)
 
+
+    # Define variable explanations
+variable_explanations = {
+    'pop': 'Percent of Percipitation',
+    'temperature': 'Temperature in Fahrenheit',
+    'humidity': 'Humidity',
+    'air_pressure': 'Air Pressure inHg (inches of mercury) Avg air pressure for Ohio is 30.34',
+    'speed_of_wind_feet_per_sec': 'Wind Speed (feet/s)'
+}
+
+# Display variable explanations
+for variable, explanation in variable_explanations.items():
+    st.write(f"{variable}: {explanation}")
